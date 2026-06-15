@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>兒童遊戲集</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(145deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+    padding: 20px;
+  }
+  .home-box {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(16px);
+    border-radius: 40px;
+    padding: 36px 28px 32px;
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  h1 {
+    font-size: 2rem;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    letter-spacing: 3px;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+  }
+  .game-list { display: flex; flex-direction: column; gap: 16px; }
+  .game-card {
+    background: rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 20px;
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: background 0.25s, transform 0.2s;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .game-card:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
+  .game-card:active { transform: scale(0.97); }
+  .game-icon { font-size: 2.8rem; flex-shrink: 0; }
+  .game-info { text-align: left; }
+  .game-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .game-desc {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.65);
+    margin-top: 2px;
+  }
+  .game-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 1px 12px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+  }
+  .footer-info {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.6;
+  }
+  .footer-info .sep { margin: 0 8px; opacity: 0.3; }
+  @media (max-width: 400px) {
+    h1 { font-size: 1.5rem; }
+    .game-icon { font-size: 2.2rem; }
+    .game-card { padding: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="home-box">
+  <h1>🎮 兒童遊戲集</h1>
+  <div class="subtitle">適合 3~7 歲 · 繁體中文</div>
+
+  <div class="game-list">
+    <a class="game-card" href="bubble.html">
+      <span class="game-icon">🫧</span>
+      <div class="game-info">
+        <div class="game-name">戳泡泡</div>
+        <div class="game-desc">30 秒內點擊戳破彩色泡泡</div>
+        <span class="game-tag">👶 3 歲以上</span>
+      </div>
+    </a>
+
+    <a class="game-card" href="animals.html">
+      <span class="game-icon">🐾</span>
+      <div class="game-info">
+        <div class="game-name">動物找找看</div>
+        <div class="game-desc">從卡片中找出指定的動物</div>
+        <span class="game-tag">🧒 4~5 歲</span>
+      </div>
+    </a>
+
+    <a class="game-card" href="math.html">
+      <span class="game-icon">🚀</span>
+      <div class="game-info">
+        <div class="game-name">數學小英雄</div>
+        <div class="game-desc">加減法闖關，練習運算</div>
+        <span class="game-tag">📚 6~7 歲</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="footer-info">
+    <span>幼保三丙 81410336</span>
+    <span class="sep">|</span>
+    <span>透過 HTML、CSS 與 JavaScript 製作三款兒童教育遊戲，運用 AI 輔助開發，學習網頁遊戲的互動設計與年齡分層規劃。</span>
+  </div>
+</div>
+
+</body>
+</html>

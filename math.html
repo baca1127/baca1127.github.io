@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🔢 數學小英雄</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(145deg, #1a1a4e 0%, #2d1b69 50%, #1a1a4e 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+    padding: 12px;
+    overflow: hidden;
+  }
+  .game-box {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(16px);
+    border-radius: 40px;
+    padding: 24px 20px 28px;
+    max-width: 520px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffd54f;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    letter-spacing: 2px;
+  }
+  .level-badge {
+    background: rgba(255,255,255,0.12);
+    border-radius: 40px;
+    padding: 4px 16px;
+    color: #a5d6ff;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 4px;
+    color: rgba(255,255,255,0.75);
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .stat-num { color: #fff; font-weight: 700; }
+  .progress-wrap {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #fdd835, #ffb300);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+  .equation {
+    background: rgba(255,255,255,0.06);
+    border-radius: 28px;
+    padding: 18px 16px 10px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .question-label {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+  }
+  .math-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .math-row .op { color: #fdd835; }
+  .math-row .eq { color: rgba(255,255,255,0.4); }
+  .math-row .qmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 18px;
+    border: 2px dashed rgba(255,255,255,0.2);
+    color: #fdd835;
+    font-size: 2rem;
+  }
+  .visual-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
+    min-height: 32px;
+  }
+  .dot { font-size: 1.6rem; line-height: 1; }
+  .choices {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .choice-btn {
+    background: rgba(255,255,255,0.07);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 16px 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.2s, border-color 0.2s;
+    touch-action: manipulation;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+  }
+  .choice-btn:active { transform: scale(0.94); }
+  .choice-btn.correct {
+    background: rgba(102,187,106,0.3);
+    border-color: #66bb6a;
+    animation: pop 0.4s ease;
+  }
+  .choice-btn.wrong {
+    background: rgba(239,83,80,0.3);
+    border-color: #ef5350;
+    animation: shake 0.4s ease;
+  }
+  .choice-btn.disabled { pointer-events: none; opacity: 0.5; }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+  .message-area {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+    border-radius: 60px;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    gap: 6px;
+  }
+  .btn {
+    background: linear-gradient(135deg, #fdd835, #f9a825);
+    border: none;
+    padding: 14px 44px;
+    border-radius: 60px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1a1a4e;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(253,216,53,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+    letter-spacing: 2px;
+  }
+  .btn:hover { transform: scale(1.04); box-shadow: 0 6px 28px rgba(253,216,53,0.45); }
+  .btn:active { transform: scale(0.95); }
+  .btn.hidden { display: none; }
+
+  /* star burst */
+  .star-burst {
+    position: fixed;
+    pointer-events: none;
+    font-size: 2rem;
+    animation: starFly 1s ease-out forwards;
+    z-index: 999;
+  }
+  @keyframes starFly {
+    0% { opacity: 1; transform: translateY(0) scale(0) rotate(0deg); }
+    50% { opacity: 1; transform: translateY(-80px) scale(1.3) rotate(180deg); }
+    100% { opacity: 0; transform: translateY(-160px) scale(0.6) rotate(360deg); }
+  }
+  .float-stars {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.4rem;
+    animation: floatUp 0.9s ease-out forwards;
+    z-index: 999;
+  }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-100px) scale(0.3); }
+  }
+
+  .finish-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0;
+  }
+  .finish-screen .trophy { font-size: 5rem; }
+  .finish-screen .big-text {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #ffd54f;
+  }
+  .finish-screen .sub-text {
+    color: rgba(255,255,255,0.7);
+    font-size: 1.05rem;
+  }
+  .finish-screen .final-stars { font-size: 2.2rem; letter-spacing: 6px; }
+
+  .footer-info {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.6;
+  }
+  .footer-info .sep { margin: 0 8px; opacity: 0.3; }
+  @media (max-width: 400px) {
+    .math-row { font-size: 2.2rem; }
+    .choice-btn { font-size: 1.6rem; padding: 14px 0; }
+    .title { font-size: 1.2rem; }
+    .question-label { font-size: 0.85rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="game-box">
+  <div class="header">
+    <span class="title">🚀 數學小英雄</span>
+    <span class="level-badge" id="levelBadge">第 1 關</span>
+  </div>
+
+  <div class="stats">
+    <span>⭐ 得分：<span class="stat-num" id="scoreNum">0</span></span>
+    <span>✅ 答對：<span class="stat-num" id="correctNum">0</span></span>
+    <span>📊 進度：<span class="stat-num" id="progressNum">0/10</span></span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- normal round -->
+  <div id="roundArea">
+    <div class="equation">
+      <div class="question-label">❓ 算出答案是多少？</div>
+      <div class="math-row" id="equationRow">
+        <span id="num1">5</span>
+        <span class="op" id="operator">+</span>
+        <span id="num2">3</span>
+        <span class="eq">=</span>
+        <span class="qmark">?</span>
+      </div>
+      <div class="visual-dots" id="visualDots"></div>
+    </div>
+
+    <div class="choices" id="choicesContainer"></div>
+
+    <div class="message-area" id="messageArea">🌟 選出正確的答案吧！</div>
+
+    <button class="btn" id="nextBtn">👉 下一題</button>
+  </div>
+
+  <!-- finish screen -->
+  <div class="finish-screen" id="finishScreen">
+    <div class="trophy">🏆</div>
+    <div class="big-text">太棒了！你通過了！</div>
+    <div class="final-stars" id="finalStars">⭐⭐⭐</div>
+    <div class="sub-text" id="finalMsg">你真是數學小英雄！</div>
+    <div style="margin-top:6px; display:flex; gap:20px; color:rgba(255,255,255,0.7); font-size:1.05rem;">
+      <span>⭐ 得分：<strong id="finalScore" style="color:#ffd54f;">0</strong></span>
+      <span>✅ 答對：<strong id="finalCorrect" style="color:#81c784;">0</strong></span>
+    </div>
+    <button class="btn" id="replayBtn" style="margin-top:8px;">🔄 再玩一次</button>
+  </div>
+  <div class="footer-info">
+    <span>幼保三丙 81410336</span>
+    <span class="sep">|</span>
+    <span>遊戲心得：數學小英雄結合加減法與關卡設計，讓小一學生在遊戲中練習運算，使用圓點視覺輔助降低抽象門檻，提升學習動機。</span>
+  </div>
+</div>
+
+<script>
+  // ---------- state ----------
+  const SCORE_PER_CORRECT = 10;
+  const PENALTY = 3;
+  const ROUNDS_PER_LEVEL = 10;
+  const MAX_LEVEL = 3;
+
+  let level = 1;
+  let score = 0;
+  let correct = 0;
+  let roundInLevel = 0;       // 0..9
+  let totalAnswered = 0;
+  let currentAnswer = null;
+  let isLocked = false;
+
+  // DOM
+  const levelBadge = document.getElementById('levelBadge');
+  const scoreNum = document.getElementById('scoreNum');
+  const correctNum = document.getElementById('correctNum');
+  const progressNum = document.getElementById('progressNum');
+  const progressFill = document.getElementById('progressFill');
+  const roundArea = document.getElementById('roundArea');
+  const equationRow = document.getElementById('equationRow');
+  const num1El = document.getElementById('num1');
+  const num2El = document.getElementById('num2');
+  const operatorEl = document.getElementById('operator');
+  const visualDots = document.getElementById('visualDots');
+  const choicesContainer = document.getElementById('choicesContainer');
+  const messageArea = document.getElementById('messageArea');
+  const nextBtn = document.getElementById('nextBtn');
+  const finishScreen = document.getElementById('finishScreen');
+  const finalStars = document.getElementById('finalStars');
+  const finalMsg = document.getElementById('finalMsg');
+  const finalScore = document.getElementById('finalScore');
+  const finalCorrect = document.getElementById('finalCorrect');
+  const replayBtn = document.getElementById('replayBtn');
+
+  // helpers
+  function shuffle(arr) {
+    for (let i = arr.length-1; i>0; i--) { const j = Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+    return arr;
+  }
+  function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  // ---------- generator ----------
+  function generateProblem(lvl) {
+    let a, b, op, answer;
+    const maxNum = lvl === 1 ? 10 : lvl === 2 ? 20 : 50;
+    op = Math.random() < 0.5 ? '+' : '-';
+
+    if (op === '+') {
+      a = Math.floor(Math.random() * maxNum) + 1;
+      b = Math.floor(Math.random() * (maxNum - a)) + 1;
+      answer = a + b;
+    } else {
+      a = Math.floor(Math.random() * maxNum) + 2;
+      b = Math.floor(Math.random() * (a - 1)) + 1;
+      answer = a - b;
+    }
+    return { a, b, op, answer };
+  }
+
+  function makeChoices(correctAnswer) {
+    let opts = new Set([correctAnswer]);
+    while (opts.size < 4) {
+      let offset = Math.floor(Math.random() * 7) + 1;
+      let sign = Math.random() < 0.5 ? 1 : -1;
+      let alt = correctAnswer + offset * sign;
+      if (alt >= 0 && alt <= 99) opts.add(alt);
+    }
+    return shuffle([...opts]);
+  }
+
+  // ---------- dots ----------
+  function renderDots(a, b, op) {
+    visualDots.innerHTML = '';
+    if (op === '+') {
+      for (let i=0; i<a; i++) { const d=document.createElement('span'); d.className='dot'; d.textContent='●'; visualDots.appendChild(d); }
+      const plus = document.createElement('span'); plus.className='dot'; plus.textContent='➕'; plus.style.margin='0 4px'; plus.style.opacity='0.5'; visualDots.appendChild(plus);
+      for (let i=0; i<b; i++) { const d=document.createElement('span'); d.className='dot'; d.textContent='●'; d.style.opacity='0.7'; visualDots.appendChild(d); }
+    } else {
+      for (let i=0; i<a; i++) { const d=document.createElement('span'); d.className='dot'; d.textContent='●'; visualDots.appendChild(d); }
+      const minus = document.createElement('span'); minus.className='dot'; minus.textContent='➖'; minus.style.margin='0 4px'; minus.style.opacity='0.5'; visualDots.appendChild(minus);
+      for (let i=0; i<b; i++) { const d=document.createElement('span'); d.className='dot'; d.textContent='○'; d.style.opacity='0.4'; d.style.textDecoration='line-through'; visualDots.appendChild(d); }
+    }
+  }
+
+  // ---------- effects ----------
+  function starBurst() {
+    const emojis = ['⭐','🌟','✨','💫','🎉','👏'];
+    for (let i=0; i<8; i++) {
+      const el = document.createElement('div');
+      el.className = 'star-burst';
+      el.textContent = pick(emojis);
+      el.style.left = (15 + Math.random() * 70) + 'vw';
+      el.style.top = (20 + Math.random() * 50) + 'vh';
+      el.style.animationDelay = (i*0.08)+'s';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1500);
+    }
+  }
+
+  function floatStars(count) {
+    for (let i=0; i<count; i++) {
+      const el = document.createElement('div');
+      el.className = 'float-stars';
+      el.textContent = '⭐';
+      el.style.left = (10+Math.random()*80)+'vw';
+      el.style.top = (30+Math.random()*40)+'vh';
+      el.style.animationDelay = (i*0.1)+'s';
+      el.style.fontSize = (1+Math.random()*1)+'rem';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1200);
+    }
+  }
+
+  // ---------- update UI ----------
+  function updateStats() {
+    scoreNum.textContent = score;
+    correctNum.textContent = correct;
+    progressNum.textContent = roundInLevel + '/' + ROUNDS_PER_LEVEL;
+    progressFill.style.width = (roundInLevel / ROUNDS_PER_LEVEL * 100) + '%';
+    levelBadge.textContent = '第 ' + level + ' 關';
+  }
+
+  function setMessage(text, isGood = true) {
+    messageArea.textContent = text;
+    messageArea.style.background = isGood ? 'rgba(102,187,106,0.15)' : 'rgba(239,83,80,0.15)';
+    messageArea.style.border = isGood ? '1px solid rgba(102,187,106,0.2)' : '1px solid rgba(239,83,80,0.2)';
+  }
+
+  // ---------- round ----------
+  function newRound() {
+    isLocked = false;
+    nextBtn.classList.add('hidden');
+
+    const prob = generateProblem(level);
+    currentAnswer = prob.answer;
+
+    num1El.textContent = prob.a;
+    num2El.textContent = prob.b;
+    operatorEl.textContent = prob.op === '+' ? '➕' : '➖';
+
+    // visual dots (only for level 1)
+    if (level === 1) {
+      visualDots.style.display = 'flex';
+      renderDots(prob.a, prob.b, prob.op);
+    } else {
+      visualDots.style.display = 'none';
+    }
+
+    // choices
+    const opts = makeChoices(prob.answer);
+    choicesContainer.innerHTML = '';
+    opts.forEach(val => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = val;
+      btn.dataset.value = val;
+      btn.addEventListener('click', () => handleChoice(btn, val));
+      btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleChoice(btn, val); }, { passive: false });
+      choicesContainer.appendChild(btn);
+    });
+
+    setMessage('🤔 答案是多少呢？');
+  }
+
+  function handleChoice(btn, val) {
+    if (isLocked) return;
+    const allBtns = choicesContainer.querySelectorAll('.choice-btn');
+
+    if (val === currentAnswer) {
+      // correct
+      isLocked = true;
+      btn.classList.add('correct');
+      allBtns.forEach(b => { if (b !== btn) b.classList.add('disabled'); });
+
+      score += SCORE_PER_CORRECT;
+      correct++;
+      totalAnswered++;
+      roundInLevel++;
+      updateStats();
+      starBurst();
+
+      const msgs = ['🎉 答對了！好厲害！','🌟 正確！你真棒！','✨ 太強了！','👏 完美解答！','💪 太聰明啦！','🏅 答對了！'];
+      if (roundInLevel >= ROUNDS_PER_LEVEL) {
+        setMessage('🎊 太棒了！闖關成功！', true);
+        // show finish or next level
+        if (level >= MAX_LEVEL) {
+          nextBtn.classList.add('hidden');
+          setTimeout(() => showFinish(), 600);
+        } else {
+          nextBtn.textContent = '🚀 前往第 ' + (level+1) + ' 關';
+          nextBtn.classList.remove('hidden');
+        }
+      } else {
+        setMessage(pick(msgs), true);
+        nextBtn.textContent = '👉 下一題';
+        nextBtn.classList.remove('hidden');
+      }
+    } else {
+      // wrong
+      btn.classList.add('wrong');
+      score = Math.max(0, score - PENALTY);
+      updateStats();
+
+      const encourages = ['😅 再想想看喔！','🤔 差一點點，再試一次！','💪 沒關係，加油！','😊 仔細算算看！'];
+      setMessage(pick(encourages), false);
+      setTimeout(() => btn.classList.remove('wrong'), 400);
+    }
+  }
+
+  // ---------- finish ----------
+  function showFinish() {
+    roundArea.style.display = 'none';
+    finishScreen.style.display = 'flex';
+    finalScore.textContent = score;
+    finalCorrect.textContent = correct;
+
+    const stars = correct >= 28 ? '⭐⭐⭐' : correct >= 22 ? '⭐⭐' : '⭐';
+    finalStars.textContent = stars;
+
+    const msgs = [
+      '你真是超級數學小英雄！🌟',
+      '你的數學好厲害，繼續加油！💪',
+      '好棒！你通過了所有關卡！🎉',
+    ];
+    finalMsg.textContent = pick(msgs);
+    floatStars(12);
+  }
+
+  function resetGame() {
+    level = 1;
+    score = 0;
+    correct = 0;
+    roundInLevel = 0;
+    totalAnswered = 0;
+    isLocked = false;
+
+    roundArea.style.display = 'block';
+    finishScreen.style.display = 'none';
+    updateStats();
+    newRound();
+  }
+
+  // ---------- event listeners ----------
+  nextBtn.addEventListener('click', () => {
+    if (level < MAX_LEVEL && roundInLevel >= ROUNDS_PER_LEVEL) {
+      level++;
+      roundInLevel = 0;
+      updateStats();
+      newRound();
+    } else {
+      newRound();
+    }
+  });
+
+  replayBtn.addEventListener('click', resetGame);
+
+  // ---------- start ----------
+  resetGame();
+</script>
+</body>
+</html>
